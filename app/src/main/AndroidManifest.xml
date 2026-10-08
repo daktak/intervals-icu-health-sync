@@ -39,6 +39,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Health Connect refuses to show the permission dialog unless the
+             requesting app resolves a rationale/privacy-policy component.
+             Android <= 13 links androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE
+             from the consent screen… -->
+        <activity
+            android:name=".ui.RationaleActivity"
+            android:exported="true"
+            android:label="@string/rationale_title">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+
+        <!-- …and Android 14+ hard-fails PermissionsActivity with "App should
+             support rational intent" unless VIEW_PERMISSION_USAGE /
+             HEALTH_PERMISSIONS resolves in this package. -->
+        <activity-alias
+            android:name=".ViewPermissionUsageActivity"
+            android:exported="true"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
+            android:targetActivity=".ui.RationaleActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
     </application>
 
 </manifest>

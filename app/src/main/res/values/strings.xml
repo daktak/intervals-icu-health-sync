@@ -9,4 +9,9 @@
     <string name="label_body">Body composition (body fat, VO2 max)</string>
     <string name="label_vitals">Vitals (blood pressure, glucose, respiration)</string>
     <string name="label_nutrition">Nutrition &amp; hydration</string>
+    <string name="label_close">Close</string>
+    <string name="rationale_title">Privacy</string>
+    <string name="rationale_text">Intervals.icu Health Sync reads health data from Health Connect (weight, resting heart rate, HRV, sleep, steps, SpO2, body fat, VO2 max, blood pressure, blood glucose, respiration, hydration and nutrition) and uploads one summary per day to your intervals.icu account using your intervals.icu API key.\n\nThe API key is stored encrypted on this device. Data is sent only to intervals.icu and to no other server.</string>
+    <string name="permissions_already_granted">All permissions already granted</string>
+    <string name="health_connect_unavailable">Health Connect is not available on this device — install or update it from the Play Store</string>
 </resources>

@@ -1,5 +1,6 @@
 package icu.intervals.healthsync.ui
 
+import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -99,7 +100,33 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.permissionsButton.setOnClickListener {
-            permissionLauncher.launch(requiredPermissions)
+            lifecycleScope.launch {
+                val granted = try {
+                    HealthConnectClient.getOrCreate(this@MainActivity)
+                        .permissionController
+                        .getGrantedPermissions()
+                } catch (e: Exception) {
+                    emptySet<String>()
+                }
+                val missing = requiredPermissions - granted
+                if (missing.isEmpty()) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.permissions_already_granted,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@launch
+                }
+                try {
+                    permissionLauncher.launch(missing)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.health_connect_unavailable,
+                        Toast.LENGTH_LONG,
+                    ).show()
+                }
+            }
         }
         binding.syncButton.setOnClickListener { runSync(null) }
         binding.backfillButton.setOnClickListener { runSync(BACKFILL_DAYS) }
