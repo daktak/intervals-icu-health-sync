@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+
+# `contents: write` lets the release job publish a GitHub Release + attach the APK.
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build debug APK (branch commit)
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same JDK as local builds; Health Connect's connect-client:1.1.0 needs
+      # compileSdk 36 / AGP 8.9.1, which run fine on JDK 21 (source/target 17).
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
+
+  release:
+    name: Create release (on v* tags)
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+      # No release signing config exists in app/build.gradle.kts, so this
+      # produces the debug-signed APK (debug keystore) - fine for sideloading.
+      - name: Build release APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Locate APK artifact
+        id: apk
+        run: |
+          set -e
+          apk="$(ls app/build/outputs/apk/debug/*.apk 2>/dev/null | head -n 1)"
+          if [ -z "$apk" ]; then
+            echo "No release APK found in app/build/outputs/apk/debug/" >&2
+            ls -R app/build/outputs/apk/ >&2 || true
+            exit 1
+          fi
+          echo "Found APK: $apk"
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$apk")" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF#refs/tags/}" \
+            --generate-notes \
+            "${{ steps.apk.outputs.path }}"

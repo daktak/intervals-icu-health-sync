@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="monospace"
+            android:textSize="13sp"
+            tools:text="Health Connect: ready" />
+
+        <EditText
+            android:id="@+id/api_key_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:autofillHints=""
+            android:hint="@string/hint_api_key"
+            android:importantForAutofill="no"
+            android:inputType="textPassword" />
+
+        <CheckBox
+            android:id="@+id/group_core"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/label_core" />
+
+        <CheckBox
+            android:id="@+id/group_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/label_body" />
+
+        <CheckBox
+            android:id="@+id/group_vitals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/label_vitals" />
+
+        <CheckBox
+            android:id="@+id/group_nutrition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:checked="true"
+            android:text="@string/label_nutrition" />
+
+        <Button
+            android:id="@+id/permissions_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_permissions" />
+
+        <Button
+            android:id="@+id/sync_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_sync" />
+
+        <Button
+            android:id="@+id/backfill_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_backfill" />
+
+    </LinearLayout>
+</ScrollView>

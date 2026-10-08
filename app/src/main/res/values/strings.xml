@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Intervals.icu Health Sync</string>
+    <string name="status_syncing">Syncing…</string>
+    <string name="hint_api_key">intervals.icu API key</string>
+    <string name="label_permissions">Grant Health Connect access</string>
+    <string name="label_sync">Sync now</string>
+    <string name="label_backfill">Backfill 30 days</string>
+    <string name="label_core">Core wellness (weight, resting HR, HRV, sleep, steps, SpO2)</string>
+    <string name="label_body">Body composition (body fat, VO2 max)</string>
+    <string name="label_vitals">Vitals (blood pressure, glucose, respiration)</string>
+    <string name="label_nutrition">Nutrition &amp; hydration</string>
+</resources>
