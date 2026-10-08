@@ -39,6 +39,13 @@ Guidance for AI agents (and humans) working in this repository.
 - Records expose only rMSSD (`HeartRateVariabilityRmssdRecord`), no SDNN.
 - `HealthPermission.READ_VO2_MAX` exists; background/history permissions are
   `PermissionController.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND` / `_HISTORY`.
+- The app must resolve a `VIEW_PERMISSION_USAGE`/`HEALTH_PERMISSIONS` component
+  (activity-alias to `RationaleActivity`) or Health Connect's
+  `PermissionsActivity` finishes with "App should support rational intent".
+- Emulator quirk (HC controller build 340818080): `READ_HEALTH_DATA_IN_BACKGROUND`
+  and `READ_HEALTH_DATA_HISTORY` are NOT framework runtime permissions (`pm grant`
+  → "Unknown permission"), appear in no consent/settings UI, and stay ungranted.
+  They ARE grantable on real devices; the Grant button shows "missing" until then.
 
 ## intervals.icu API
 
