@@ -103,7 +103,7 @@ class HealthConnectReader(context: Context) {
             for (record in readAll<SleepSessionRecord>(window)) {
                 val builder = builders[record.endTime.atZone(zone).toLocalDate()] ?: continue
                 if (!isMainSleep(record, zone)) continue
-                val seconds = Duration.between(record.startTime, record.endTime).seconds
+                val seconds = sleepDurationSeconds(record)
                 if (seconds <= 0 || seconds > MAX_SLEEP_SECONDS) continue
                 builder.addSleepSeconds(seconds)
                 mainSleepSessions += builder to record
@@ -186,6 +186,21 @@ class HealthConnectReader(context: Context) {
             pageToken = response.pageToken
         } while (pageToken != null)
         return records
+    }
+
+    private fun sleepDurationSeconds(record: SleepSessionRecord): Long {
+        val stages = record.stages
+        if (stages.isEmpty()) {
+            return Duration.between(record.startTime, record.endTime).seconds
+        }
+        return stages.sumOf { stage ->
+            when (stage.stage) {
+                SleepSessionRecord.STAGE_TYPE_AWAKE,
+                SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED,
+                SleepSessionRecord.STAGE_TYPE_OUT_OF_BED -> 0L
+                else -> Duration.between(stage.startTime, stage.endTime).seconds
+            }
+        }
     }
 
     private fun isMainSleep(session: SleepSessionRecord, zone: ZoneId): Boolean {
