@@ -77,6 +77,43 @@ class WellnessMapperTest {
     }
 
     @Test
+    fun mapsMinSleepHrAsRestingHRFallback() {
+        val day = DayStats(
+            date = date,
+            minSleepHr = 45,
+        )
+
+        val entry = WellnessMapper.map(listOf(day), allGroups).single()
+
+        assertEquals(45L, entry.restingHR!!)
+    }
+
+    @Test
+    fun prefersRestingHRRecordOverMinSleepHr() {
+        val day = DayStats(
+            date = date,
+            restingHr = 50L,
+            minSleepHr = 45,
+        )
+
+        val entry = WellnessMapper.map(listOf(day), allGroups).single()
+
+        assertEquals(50L, entry.restingHR!!)
+    }
+
+    @Test
+    fun keepsDayWithOnlyMinSleepHr() {
+        val day = DayStats(
+            date = date,
+            minSleepHr = 45,
+        )
+
+        val entries = WellnessMapper.map(listOf(day), allGroups)
+
+        assertEquals(1, entries.size)
+    }
+
+    @Test
     fun skipsDisabledGroups() {
         val day = DayStats(
             date = date,

@@ -112,16 +112,35 @@ class HealthConnectReader(context: Context) {
 
         safeRead {
             for ((builder, session) in mainSleepSessions) {
-                val aggregate = client.aggregate(
-                    AggregateRequest(
-                        metrics = setOf(HeartRateRecord.BPM_AVG, HeartRateRecord.MEASUREMENTS_COUNT),
-                        timeRangeFilter = TimeRangeFilter.between(session.startTime, session.endTime),
+                val window = TimeRangeFilter.between(session.startTime, session.endTime)
+                try {
+                    val aggregate = client.aggregate(
+                        AggregateRequest(
+                            metrics = setOf(
+                                HeartRateRecord.BPM_AVG,
+                                HeartRateRecord.BPM_MIN,
+                                HeartRateRecord.MEASUREMENTS_COUNT,
+                            ),
+                            timeRangeFilter = window,
+                        )
                     )
-                )
-                val bpmAvg = aggregate[HeartRateRecord.BPM_AVG]
-                val count = aggregate[HeartRateRecord.MEASUREMENTS_COUNT]
-                if (bpmAvg != null && count != null) {
-                    builder.addSleepHeartRate(bpmAvg, count)
+                    val bpmAvg = aggregate[HeartRateRecord.BPM_AVG]
+                    val count = aggregate[HeartRateRecord.MEASUREMENTS_COUNT]
+                    if (bpmAvg != null && count != null) {
+                        builder.addSleepHeartRate(bpmAvg, count)
+                    }
+                    val bpmMin = aggregate[HeartRateRecord.BPM_MIN]
+                    if (bpmMin != null) {
+                        builder.addSleepMinHr(bpmMin)
+                    }
+                } catch (_: UnsupportedOperationException) {
+                    // Older Health Connect modules don't support BPM_MIN;
+                    // fall back to the raw heart-rate samples below.
+                    val samples = readAll<HeartRateRecord>(window)
+                        .flatMap { it.samples.map { HrSample(it.time, it.beatsPerMinute) } }
+                    SleepHrMin.minInWindow(samples, session.startTime, session.endTime)?.let {
+                        builder.addSleepMinHr(it)
+                    }
                 }
             }
         }
@@ -235,6 +254,7 @@ class HealthConnectReader(context: Context) {
         private var respirationCount = 0
         private var sleepHrWeightedSum = 0.0
         private var sleepHrSamples = 0L
+        private var minSleepHr: Long? = null
 
         fun isNewer(key: String, time: Instant): Boolean {
             val previous = latestAt[key]
@@ -263,6 +283,12 @@ class HealthConnectReader(context: Context) {
             sleepHrSamples += sampleCount
         }
 
+        fun addSleepMinHr(bpm: Long) {
+            if (bpm <= 0) return
+            val current = minSleepHr
+            minSleepHr = if (current == null || bpm < current) bpm else current
+        }
+
         fun addHydrationLitres(litres: Double) {
             hydrationLitres = (hydrationLitres ?: 0.0) + litres
         }
@@ -282,6 +308,7 @@ class HealthConnectReader(context: Context) {
             hrvRmssdMs = hrvRmssdMs,
             sleepSecs = sleepSeconds,
             avgSleepingHr = if (sleepHrSamples > 0) sleepHrWeightedSum / sleepHrSamples else null,
+            minSleepHr = minSleepHr,
             steps = steps,
             spO2Percent = if (spO2Count > 0) spO2Sum / spO2Count else null,
             bodyFatPercent = bodyFatPercent,

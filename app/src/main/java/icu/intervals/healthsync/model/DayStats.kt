@@ -9,6 +9,7 @@ data class DayStats(
     val hrvRmssdMs: Double? = null,
     val sleepSecs: Long? = null,
     val avgSleepingHr: Double? = null,
+    val minSleepHr: Long? = null,
     val steps: Long? = null,
     val spO2Percent: Double? = null,
     val bodyFatPercent: Double? = null,
@@ -25,7 +26,7 @@ data class DayStats(
 ) {
     fun hasAnyValue(): Boolean =
         weightKg != null || restingHr != null || hrvRmssdMs != null || sleepSecs != null ||
-            avgSleepingHr != null || steps != null || spO2Percent != null || bodyFatPercent != null ||
+            avgSleepingHr != null || minSleepHr != null || steps != null || spO2Percent != null || bodyFatPercent != null ||
             vo2Max != null || systolicMmHg != null || diastolicMmHg != null ||
             bloodGlucoseMmol != null || respirationPerMin != null || hydrationLitres != null ||
             kcalConsumed != null || carbsGrams != null || proteinGrams != null || fatGrams != null
