@@ -31,8 +31,12 @@ class SyncWorker(
         const val EXTRA_DAYS_BACK = "days_back"
         const val KEY_MESSAGE = "message"
         const val UNIQUE_PERIODIC = "icu_daily_sync"
+        private const val FLEX_MINUTES = 30L
 
-        fun periodicRequest() = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
+        fun periodicRequest(initialDelayMillis: Long) = PeriodicWorkRequestBuilder<SyncWorker>(
+            1, TimeUnit.DAYS, FLEX_MINUTES, TimeUnit.MINUTES,
+        )
+            .setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)

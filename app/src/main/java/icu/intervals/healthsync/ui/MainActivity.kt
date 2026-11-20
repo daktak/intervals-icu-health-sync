@@ -28,10 +28,15 @@ import icu.intervals.healthsync.R
 import icu.intervals.healthsync.databinding.ActivityMainBinding
 import icu.intervals.healthsync.model.MetricGroup
 import icu.intervals.healthsync.sync.AppPreferences
+import icu.intervals.healthsync.sync.SyncScheduler
+import icu.intervals.healthsync.sync.SyncSchedule
 import icu.intervals.healthsync.sync.SyncService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -99,6 +104,31 @@ class MainActivity : AppCompatActivity() {
             prefs.setGroupEnabled(MetricGroup.NUTRITION, checked)
         }
 
+        binding.morningSyncInput.setText(SyncSchedule.formatMinuteOfDay(prefs.morningSyncMinuteOfDay))
+        binding.morningSyncInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val previous = prefs.morningSyncMinuteOfDay
+                val parsed = SyncSchedule.parseMinuteOfDay(s?.toString())
+                if (parsed == null) {
+                    binding.morningSyncInput.removeTextChangedListener(this)
+                    binding.morningSyncInput.setText(SyncSchedule.formatMinuteOfDay(previous))
+                    binding.morningSyncInput.addTextChangedListener(this)
+                    Toast.makeText(
+                        this@MainActivity, R.string.error_invalid_time, Toast.LENGTH_SHORT,
+                    ).show()
+                    return
+                }
+                if (parsed != previous) {
+                    prefs.morningSyncMinuteOfDay = parsed
+                    // The configured slot moved — re-evaluate the stale check today.
+                    prefs.lastForegroundRefreshEpochDay = -1
+                    SyncScheduler.reschedulePeriodic(applicationContext, parsed)
+                }
+            }
+        })
+
         binding.permissionsButton.setOnClickListener {
             lifecycleScope.launch {
                 val granted = try {
@@ -135,6 +165,30 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshStatus()
+        maybeEnqueueForegroundSync()
+    }
+
+    /**
+     * Ensures today's overnight data is synced before the user decides on a
+     * workout, in case the WorkManager slot drifted or fired before the
+     * morning metrics were available. Runs at most once per day.
+     */
+    private fun maybeEnqueueForegroundSync() {
+        if (prefs.apiKey.isBlank()) return
+
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
+        val deadline = SyncSchedule.deadlineAt(
+            today, prefs.morningSyncMinuteOfDay, zone, GRACE_MINUTES,
+        )
+        val lastSync = if (prefs.lastSyncMillis <= 0L) null else Instant.ofEpochMilli(prefs.lastSyncMillis).atZone(zone)
+
+        val syncNeeded = lastSync == null || lastSync.isBefore(deadline)
+        val epochDay = today.toEpochDay().toInt()
+        if (syncNeeded && prefs.lastForegroundRefreshEpochDay != epochDay) {
+            SyncScheduler.enqueueForegroundSync(applicationContext)
+            prefs.lastForegroundRefreshEpochDay = epochDay
+        }
     }
 
     private fun runSync(daysBack: Int?) {
@@ -204,5 +258,6 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val BACKFILL_DAYS = 30
+        private const val GRACE_MINUTES = 60L
     }
 }

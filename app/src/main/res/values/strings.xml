@@ -14,4 +14,7 @@
     <string name="rationale_text">Intervals.icu Health Sync reads health data from Health Connect (weight, resting heart rate, HRV, sleep, steps, SpO2, body fat, VO2 max, blood pressure, blood glucose, respiration, hydration and nutrition) and uploads one summary per day to your intervals.icu account using your intervals.icu API key.\n\nThe API key is stored encrypted on this device. Data is sent only to intervals.icu and to no other server.</string>
     <string name="permissions_already_granted">All permissions already granted</string>
     <string name="health_connect_unavailable">Health Connect is not available on this device — install or update it from the Play Store</string>
+    <string name="label_morning_sync">Morning auto-sync (local time)</string>
+    <string name="hint_morning_sync">HH:mm</string>
+    <string name="error_invalid_time">Invalid time — keeping previous value</string>
 </resources>

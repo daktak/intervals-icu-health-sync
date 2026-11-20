@@ -4,6 +4,7 @@ import icu.intervals.healthsync.sync.SyncService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -49,6 +50,41 @@ class SyncDatesTest {
         assertEquals(60, dates.size)
         assertEquals(today.minusDays(59), dates.first())
         assertEquals(today, dates.last())
+    }
+
+    @Test
+    fun syncEarlierSameDayStillIncludesToday() {
+        val lastSync = today.atTime(20, 0)
+            .atZone(zone)
+            .toInstant()
+
+        val dates = SyncService.resolveSyncDates(lastSync.toEpochMilli(), null, today, zone)
+
+        assertEquals(
+            listOf(
+                today.minusDays(1),
+                today,
+            ),
+            dates,
+        )
+    }
+
+    @Test
+    fun syncYesterdayStillIncludesToday() {
+        val lastSync = today.minusDays(1)
+            .atStartOfDay(zone)
+            .toInstant()
+
+        val dates = SyncService.resolveSyncDates(lastSync.toEpochMilli(), null, today, zone)
+
+        assertEquals(
+            listOf(
+                today.minusDays(2),
+                today.minusDays(1),
+                today,
+            ),
+            dates,
+        )
     }
 
     @Test

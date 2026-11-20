@@ -34,6 +34,20 @@ class AppPreferences(context: Context) {
             prefs.edit().putString(KEY_LAST_RESULT, value).apply()
         }
 
+    /** Local time (minutes since midnight) at which the daily auto-sync should run. */
+    var morningSyncMinuteOfDay: Int
+        get() = prefs.getInt(KEY_MORNING_SYNC_MINUTE_OF_DAY, SyncSchedule.DEFAULT_MINUTE_OF_DAY)
+        set(value) {
+            prefs.edit().putInt(KEY_MORNING_SYNC_MINUTE_OF_DAY, value.coerceIn(0, 24 * 60 - 1)).apply()
+        }
+
+    /** Epoch day of the last foreground (app-open) refresh, so it runs at most once per day. */
+    var lastForegroundRefreshEpochDay: Int
+        get() = prefs.getInt(KEY_LAST_FOREGROUND_REFRESH_EPOCH_DAY, -1)
+        set(value) {
+            prefs.edit().putInt(KEY_LAST_FOREGROUND_REFRESH_EPOCH_DAY, value).apply()
+        }
+
     fun isGroupEnabled(group: MetricGroup): Boolean =
         prefs.getBoolean(groupKey(group), true)
 
@@ -51,5 +65,7 @@ class AppPreferences(context: Context) {
         const val KEY_API_KEY = "api_key"
         const val KEY_LAST_SYNC = "last_sync_millis"
         const val KEY_LAST_RESULT = "last_result"
+        const val KEY_MORNING_SYNC_MINUTE_OF_DAY = "morning_sync_minute_of_day"
+        const val KEY_LAST_FOREGROUND_REFRESH_EPOCH_DAY = "last_foreground_refresh_epoch_day"
     }
 }

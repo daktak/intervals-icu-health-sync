@@ -59,6 +59,29 @@
             android:checked="true"
             android:text="@string/label_nutrition" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/morning_sync_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/label_morning_sync" />
+
+            <EditText
+                android:id="@+id/morning_sync_input"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_morning_sync"
+                android:inputType="time"
+                android:maxLength="8"
+                android:maxWidth="110dp" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/permissions_button"
             android:layout_width="match_parent"
