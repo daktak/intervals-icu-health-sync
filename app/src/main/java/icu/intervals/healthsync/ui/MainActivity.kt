@@ -37,6 +37,7 @@ import icu.intervals.healthsync.sync.AppPreferences
 import icu.intervals.healthsync.sync.SyncScheduler
 import icu.intervals.healthsync.sync.SyncSchedule
 import icu.intervals.healthsync.sync.SyncService
+import icu.intervals.healthsync.update.UpdateChecker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -195,6 +196,8 @@ class MainActivity : AppCompatActivity() {
         )
         binding.versionView.text = spannable
         binding.versionView.movementMethod = LinkMovementMethod.getInstance()
+
+        UpdateChecker(this).check(showToast = false)
     }
 
     override fun onResume() {
