@@ -3,6 +3,7 @@ package icu.intervals.healthsync.ui
 import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -85,6 +86,24 @@ class MainActivity : AppCompatActivity() {
                 prefs.apiKey = s?.toString()?.trim().orEmpty()
             }
         })
+
+        var revealApiKey = false
+        binding.apiKeyToggle.setOnClickListener {
+            revealApiKey = !revealApiKey
+            val cursor = binding.apiKeyInput.selectionStart
+            if (revealApiKey) {
+                binding.apiKeyInput.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                binding.apiKeyToggle.setImageResource(R.drawable.ic_visibility_off)
+                binding.apiKeyToggle.contentDescription = getString(R.string.desc_hide_api_key)
+            } else {
+                binding.apiKeyInput.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                binding.apiKeyToggle.setImageResource(R.drawable.ic_visibility)
+                binding.apiKeyToggle.contentDescription = getString(R.string.desc_show_api_key)
+            }
+            binding.apiKeyInput.setSelection(if (cursor >= 0) cursor else 0)
+        }
 
         binding.groupCore.isChecked = prefs.isGroupEnabled(MetricGroup.CORE)
         binding.groupBody.isChecked = prefs.isGroupEnabled(MetricGroup.BODY_COMPOSITION)

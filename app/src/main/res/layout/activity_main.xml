@@ -20,15 +20,32 @@
             android:textSize="13sp"
             tools:text="Health Connect: ready" />
 
-        <EditText
-            android:id="@+id/api_key_input"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:autofillHints=""
-            android:hint="@string/hint_api_key"
-            android:importantForAutofill="no"
-            android:inputType="textPassword" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/api_key_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:hint="@string/hint_api_key"
+                android:importantForAutofill="no"
+                android:inputType="textPassword" />
+
+            <ImageButton
+                android:id="@+id/api_key_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/desc_show_api_key"
+                android:padding="8dp"
+                android:src="@drawable/ic_visibility" />
+        </LinearLayout>
 
         <CheckBox
             android:id="@+id/group_core"
