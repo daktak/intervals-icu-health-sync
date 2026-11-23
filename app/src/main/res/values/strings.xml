@@ -2,6 +2,7 @@
     <string name="app_name">Intervals.icu Health Sync</string>
     <string name="status_syncing">Syncing…</string>
     <string name="hint_api_key">intervals.icu API key</string>
+    <string name="github_url">https://github.com/daktak/intervals-icu-health-sync</string>
     <string name="desc_show_api_key">Show API key</string>
     <string name="desc_hide_api_key">Hide API key</string>
     <string name="label_permissions">Grant Health Connect access</string>

@@ -3,6 +3,10 @@ package icu.intervals.healthsync.ui
 import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.URLSpan
+import android.text.method.LinkMovementMethod
 import android.text.InputType
 import android.text.TextWatcher
 import android.widget.Toast
@@ -25,6 +29,7 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.lifecycle.lifecycleScope
+import icu.intervals.healthsync.BuildConfig
 import icu.intervals.healthsync.R
 import icu.intervals.healthsync.databinding.ActivityMainBinding
 import icu.intervals.healthsync.model.MetricGroup
@@ -179,6 +184,17 @@ class MainActivity : AppCompatActivity() {
         }
         binding.syncButton.setOnClickListener { runSync(null) }
         binding.backfillButton.setOnClickListener { runSync(BACKFILL_DAYS) }
+
+        val versionLabel = "v${BuildConfig.VERSION_NAME}"
+        val spannable = SpannableString(versionLabel)
+        spannable.setSpan(
+            URLSpan(getString(R.string.github_url)),
+            0,
+            versionLabel.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
+        binding.versionView.text = spannable
+        binding.versionView.movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onResume() {
