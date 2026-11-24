@@ -118,7 +118,6 @@ class HealthConnectReader(context: Context) {
                         AggregateRequest(
                             metrics = setOf(
                                 HeartRateRecord.BPM_AVG,
-                                HeartRateRecord.BPM_MIN,
                                 HeartRateRecord.MEASUREMENTS_COUNT,
                             ),
                             timeRangeFilter = window,
@@ -129,18 +128,18 @@ class HealthConnectReader(context: Context) {
                     if (bpmAvg != null && count != null) {
                         builder.addSleepHeartRate(bpmAvg, count)
                     }
-                    val bpmMin = aggregate[HeartRateRecord.BPM_MIN]
-                    if (bpmMin != null) {
-                        builder.addSleepMinHr(bpmMin)
-                    }
                 } catch (_: UnsupportedOperationException) {
-                    // Older Health Connect modules don't support BPM_MIN;
-                    // fall back to the raw heart-rate samples below.
+                    // Older Health Connect modules don't support the aggregate
+                    // metrics; avg sleeping HR stays null.
+                }
+                try {
                     val samples = readAll<HeartRateRecord>(window)
                         .flatMap { it.samples.map { HrSample(it.time, it.beatsPerMinute) } }
                     SleepHrMin.minInWindow(samples, session.startTime, session.endTime)?.let {
                         builder.addSleepMinHr(it)
                     }
+                } catch (_: Exception) {
+                    // Ignore; minSleepHr stays null.
                 }
             }
         }
