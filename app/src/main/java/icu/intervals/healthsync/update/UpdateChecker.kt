@@ -88,7 +88,7 @@ class UpdateChecker(private val context: Context) {
             if (v == null) return intArrayOf(0)
             var s = v.trim()
             if (s.startsWith("v") || s.startsWith("V")) s = s.substring(1)
-            val parts = s.split("\\.")
+            val parts = s.split(".")
             val out = IntArray(parts.size)
             for (i in parts.indices) out[i] = parsePart(parts[i])
             return out
