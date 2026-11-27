@@ -22,7 +22,7 @@ object SyncScheduler {
         val delayMillis = SyncSchedule.nextDelayMillis(now, minuteOfDay)
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             SyncWorker.UNIQUE_PERIODIC,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             SyncWorker.periodicRequest(delayMillis),
         )
     }
