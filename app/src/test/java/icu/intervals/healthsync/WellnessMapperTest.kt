@@ -89,7 +89,7 @@ class WellnessMapperTest {
     }
 
     @Test
-    fun prefersRestingHRRecordOverMinSleepHr() {
+    fun prefersMinSleepHrOverRestingHRRecord() {
         val day = DayStats(
             date = date,
             restingHr = 50L,
@@ -98,7 +98,7 @@ class WellnessMapperTest {
 
         val entry = WellnessMapper.map(listOf(day), allGroups).single()
 
-        assertEquals(50L, entry.restingHR!!)
+        assertEquals(45L, entry.restingHR!!)
     }
 
     @Test

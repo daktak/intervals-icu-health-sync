@@ -21,7 +21,7 @@ object WellnessMapper {
         val entry = WellnessEntry(
             id = day.date.toString(),
             weight = if (core) day.weightKg?.roundTo(1) else null,
-            restingHR = if (core) day.restingHr ?: day.minSleepHr else null,
+            restingHR = if (core) day.minSleepHr ?: day.restingHr else null,
             hrv = if (core) day.hrvRmssdMs?.roundTo(1) else null,
             sleepSecs = if (core) day.sleepSecs else null,
             avgSleepingHR = if (core) day.avgSleepingHr?.roundTo(0)?.toLong() else null,
